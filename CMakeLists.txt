@@ -1,4 +1,5 @@
 # https://docs.ros.org/en/jazzy/How-To-Guides/Ament-CMake-Documentation.html
+# https://control.ros.org/rolling/doc/ros2_control/hardware_interface/doc/writing_new_hardware_component.html
 
 cmake_minimum_required(VERSION 3.8)
 project(diffbot)
@@ -55,8 +56,11 @@ install(TARGETS diffbot
 # ament_export_dependencies()
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+
+  find_package(ament_cmake_gmock REQUIRED)
+  ament_add_gmock(test_load_diffbot test/test_load_diffbot.cpp)
+  ament_target_dependencies(test_load_diffbot hardware_interface)
+
 endif()
 
 ament_package()
