@@ -1,4 +1,8 @@
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #include "diffbot/diffbot_system.hpp"
 
 #include "hardware_interface/lexical_casts.hpp"
@@ -44,7 +48,23 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
 // If all required parameters are set and valid and everything works
 // fine return SUCCESS or return ERROR otherwise.
 
-    return CallbackReturn::ERROR;
+    cout << "info.hardware_parameters:" << endl;
+    if (info.hardware_parameters.size() > 0) {
+        for (auto param : info.hardware_parameters)
+            cout << "  " << param.first << "=" << param.second << endl;
+    } else {
+        cout << "  (none)" << endl;
+    }
+
+    cout << "info.joints:" << endl;
+    if (info.joints.size() > 0) {
+        for (unsigned i = 0; i < info.joints.size(); i++)
+            cout << "  " << i << ":" << " name=" << info.joints[i].name << " type=" << info.joints[i].type << endl;
+    } else {
+        cout << "  (none)" << endl;
+    }
+
+    return CallbackReturn::SUCCESS;
 }
 
 
