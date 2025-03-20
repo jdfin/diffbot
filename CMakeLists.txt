@@ -40,9 +40,12 @@ ament_target_dependencies(diffbot PUBLIC
 
 pluginlib_export_plugin_description_file(hardware_interface diffbot.xml)
 
-install(
-  DIRECTORY include/
+install(DIRECTORY include
   DESTINATION include/${PROJECT_NAME}
+)
+
+install(DIRECTORY config description launch urdf
+  DESTINATION share/${PROJECT_NAME}
 )
 
 install(TARGETS diffbot
