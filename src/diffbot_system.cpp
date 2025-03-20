@@ -24,7 +24,12 @@ namespace diffbot
 {
 
 
-DiffbotSystem::DiffbotSystem()
+DiffbotSystem::DiffbotSystem() :
+    gpio_dev_name_(""), pwm_chip_name_(""),
+    left_dir_pin_(-1), left_pwm_num_(-1), left_pwm_rev_(false),
+    left_enc_a_pin_(-1), left_enc_b_pin_(-1), left_enc_cpr_(-1),
+    right_dir_pin_(-1), right_pwm_num_(-1), right_pwm_rev_(false),
+    right_enc_a_pin_(-1), right_enc_b_pin_(-1), right_enc_cpr_(-1)
 {
 }
 
@@ -41,20 +46,41 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
         return CallbackReturn::ERROR;
     }
 
-// Implement on_init method. Here, you should initialize all member
-// variables and process the parameters from the info argument. In the
-// first line usually the parents on_init is called to process standard
-// values, like name. This is done using SystemInterface::on_init(info).
-// If all required parameters are set and valid and everything works
-// fine return SUCCESS or return ERROR otherwise.
+    // const info was used to initialize non-const info_
+    // info_.hardware_parameters key and value are both std::string
 
-    cout << "info.hardware_parameters:" << endl;
-    if (info.hardware_parameters.size() > 0) {
-        for (auto param : info.hardware_parameters)
-            cout << "  " << param.first << "=" << param.second << endl;
-    } else {
-        cout << "  (none)" << endl;
-    }
+    gpio_dev_name_ = info_.hardware_parameters["gpio_dev_name"];
+    pwm_chip_name_ = info_.hardware_parameters["pwm_chip_name"];
+    left_dir_pin_ = std::stoi(info_.hardware_parameters["left/dir_pin"]);
+    left_pwm_num_ = std::stoi(info_.hardware_parameters["left/pwm_num"]);
+    left_pwm_rev_ = (info_.hardware_parameters["left/pwm_rev"] == "true");
+    left_enc_a_pin_ = std::stoi(info_.hardware_parameters["left/enc_a_pin"]);
+    left_enc_b_pin_ = std::stoi(info_.hardware_parameters["left/enc_b_pin"]);
+    left_enc_cpr_ = std::stoi(info_.hardware_parameters["left/enc_cpr"]);
+    right_dir_pin_ = std::stoi(info_.hardware_parameters["right/dir_pin"]);
+    right_pwm_num_ = std::stoi(info_.hardware_parameters["right/pwm_num"]);
+    right_pwm_rev_ = (info_.hardware_parameters["right/pwm_rev"] == "true");
+    right_enc_a_pin_ = std::stoi(info_.hardware_parameters["right/enc_a_pin"]);
+    right_enc_b_pin_ = std::stoi(info_.hardware_parameters["right/enc_b_pin"]);
+    right_enc_cpr_ = std::stoi(info_.hardware_parameters["right/enc_cpr"]);
+
+#if 1
+    cout << "info.hardware_parameters:" << endl
+        << "  gpio_dev_name = \"" << gpio_dev_name_ << "\"" << endl
+        << "  pwm_chip_name = \"" << pwm_chip_name_ << "\"" << endl
+        << "  left/dir_pin = " << left_dir_pin_ << endl
+        << "  left/pwm_num = " << left_pwm_num_ << endl
+        << "  left/pwm_rev = " << (left_pwm_rev_ ? "true" : "false") << endl
+        << "  left/enc_a_pin = " << left_enc_a_pin_ << endl
+        << "  left/enc_b_pin = " << left_enc_b_pin_ << endl
+        << "  left/enc_cpr = " << left_enc_cpr_ << endl
+        << "  right/dir_pin = " << right_dir_pin_ << endl
+        << "  right/pwm_num = " << right_pwm_num_ << endl
+        << "  right/pwm_rev = " << (right_pwm_rev_ ? "true" : "false") << endl
+        << "  right/enc_a_pin = " << right_enc_a_pin_ << endl
+        << "  right/enc_b_pin = " << right_enc_b_pin_ << endl
+        << "  right/enc_cpr = " << right_enc_cpr_ << endl;
+#endif
 
     cout << "info.joints:" << endl;
     if (info.joints.size() > 0) {
