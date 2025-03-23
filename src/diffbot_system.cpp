@@ -34,7 +34,9 @@ DiffbotSystem::DiffbotSystem() :
     left_enc_a_pin_(-1), left_enc_b_pin_(-1), left_enc_cpr_(-1),
     right_dir_pin_(-1), right_pwm_num_(-1), right_pwm_rev_(false),
     right_enc_a_pin_(-1), right_enc_b_pin_(-1), right_enc_cpr_(-1),
-    left_motor_(nullptr), right_motor_(nullptr)
+    left_motor_(nullptr), right_motor_(nullptr),
+    left_rad_(0.0), left_rps_(0.0),
+    right_rad_(0.0), right_rps_(0.0)
 {
 }
 
@@ -151,10 +153,15 @@ CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
     return CallbackReturn::SUCCESS;
 }
 
-return_type DiffbotSystem::read(const Time& /*time*/, const Duration& period)
+return_type DiffbotSystem::read(const Time& /*time*/, const Duration& /*period*/)
 {
 
 #if 1
+    set_state("left_wheel_joint/position", left_rad_);
+    set_state("left_wheel_joint/velocity", left_rps_);
+    set_state("right_wheel_joint/position", right_rad_);
+    set_state("right_wheel_joint/velocity", right_rps_);
+#else
     auto l_pos = get_state("left_wheel_joint/position");
     auto l_vel = get_command("left_wheel_joint/velocity");
     l_pos += period.seconds() * l_vel;
@@ -179,21 +186,26 @@ return_type DiffbotSystem::read(const Time& /*time*/, const Duration& period)
 
 return_type DiffbotSystem::write(const Time& /*time*/, const Duration& /*period*/)
 {
+    assert(left_motor_ != nullptr);
+    assert(right_motor_ != nullptr);
 
 #if 1
-    auto l_vel = get_command("left_wheel_joint/velocity");
-    set_state("left_wheel_joint/velocity", l_vel);
+    auto l_rps = get_command("left_wheel_joint/velocity");
+    //set_state("left_wheel_joint/velocity", l_rps);
 
-    auto r_vel = get_command("right_wheel_joint/velocity");
-    set_state("right_wheel_joint/velocity", r_vel);
+    auto r_rps = get_command("right_wheel_joint/velocity");
+    //set_state("right_wheel_joint/velocity", r_rps);
 
-    std::stringstream ss;
-    ss << endl << std::fixed << std::setprecision(2)
-       << "Writing commands:"
-       << "    vel: " << l_vel << " " << r_vel;
+    //std::stringstream ss;
+    //ss << endl << std::fixed << std::setprecision(2)
+       //<< "Writing commands:"
+       //<< "    vel: " << l_rps << " " << r_rps;
 
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
+    //RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
 #endif
+
+    left_motor_->speed_rps(l_rps, 0, left_rad_, left_rps_);
+    right_motor_->speed_rps(r_rps, 0, right_rad_, right_rps_);
 
     return return_type::OK;
 }

@@ -57,6 +57,12 @@ class DiffbotSystem : public hardware_interface::SystemInterface
         MotorCtrl *left_motor_;
         MotorCtrl *right_motor_;
 
+        // actual position (radians) and velocity (radians/second)
+        double left_rad_;
+        double left_rps_;
+        double right_rad_;
+        double right_rps_;
+
 }; // class DiffbotSystem
 
 }; // namespace diffbot
