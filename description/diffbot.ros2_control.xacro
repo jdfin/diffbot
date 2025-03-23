@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="diffbot_ros2_control" params="name prefix use_mock_hardware">
+
+    <ros2_control name="${name}" type="system">
+      <xacro:unless value="${use_mock_hardware}">
+        <hardware>
+          <plugin>diffbot/DiffbotSystem</plugin>
+          <param name="example_param_hw_start_duration_sec">0</param>
+          <param name="example_param_hw_stop_duration_sec">3.0</param>
+          <!-- used by both wheels -->
+          <param name="gpio_dev_name">/dev/gpiochip0</param>
+          <param name="pwm_chip_name">pwmchip0</param>
+          <!-- left wheel -->
+          <param name="left/dir_pin">17</param>
+          <param name="left/pwm_num">1</param>
+          <param name="left/pwm_rev">true</param>
+          <param name="left/enc_a_pin">3</param>
+          <param name="left/enc_b_pin">4</param>
+          <param name="left/enc_cpr">585</param>
+          <!-- right wheel -->
+          <param name="right/dir_pin">22</param>
+          <param name="right/pwm_num">0</param>
+          <param name="right/pwm_rev">false</param>
+          <param name="right/enc_a_pin">11</param>
+          <param name="right/enc_b_pin">9</param>
+          <param name="right/enc_cpr">585</param>
+        </hardware>
+      </xacro:unless>
+      <xacro:if value="${use_mock_hardware}">
+        <hardware>
+          <plugin>mock_components/GenericSystem</plugin>
+          <param name="calculate_dynamics">true</param>
+        </hardware>
+      </xacro:if>
+      <joint name="${prefix}left_wheel_joint">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}right_wheel_joint">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>
