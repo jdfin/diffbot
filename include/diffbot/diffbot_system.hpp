@@ -3,6 +3,8 @@
 
 #include "hardware_interface/system_interface.hpp"
 
+class MotorCtrl;
+
 namespace diffbot
 {
 
@@ -51,6 +53,9 @@ class DiffbotSystem : public hardware_interface::SystemInterface
         int right_enc_a_pin_;
         int right_enc_b_pin_;
         int right_enc_cpr_;
+
+        MotorCtrl *left_motor_;
+        MotorCtrl *right_motor_;
 
 }; // class DiffbotSystem
 

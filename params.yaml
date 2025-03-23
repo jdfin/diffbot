@@ -1,4 +1,0 @@
-diffbot:
-    ros__parameters:
-        wheel_track: 0.153
-        wheel_radius: 0.033

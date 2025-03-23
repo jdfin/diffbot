@@ -1,14 +1,19 @@
 {
-  "configurations": [
-    {
-      "name": "Linux",
-      "includePath": ["${workspaceFolder}/**", "/opt/ros/jazzy/include"],
-      "defines": [],
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "gcc-arm64"
-    }
-  ],
-  "version": 4
+    "_comment": "This file must be moved to the root of the vscode workspace",
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/ros/jazzy/include",
+                "/opt/ros/jazzy/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-arm64"
+        }
+    ],
+    "version": 4
 }

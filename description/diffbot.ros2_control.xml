@@ -2,7 +2,7 @@
 
 <robot name="Diffbot">
 
-  <ros2_control name="diffbot_ros2_control" type="system">
+  <ros2_control name="DiffBot" type="system">
 
     <hardware>
       <plugin>diffbot/DiffbotSystem</plugin>

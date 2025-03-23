@@ -1,7 +1,11 @@
 
+#include <cassert>
+
 #include <iostream>
 using std::cout;
 using std::endl;
+
+#include "motor_ctrl.h"
 
 #include "diffbot/diffbot_system.hpp"
 
@@ -29,7 +33,8 @@ DiffbotSystem::DiffbotSystem() :
     left_dir_pin_(-1), left_pwm_num_(-1), left_pwm_rev_(false),
     left_enc_a_pin_(-1), left_enc_b_pin_(-1), left_enc_cpr_(-1),
     right_dir_pin_(-1), right_pwm_num_(-1), right_pwm_rev_(false),
-    right_enc_a_pin_(-1), right_enc_b_pin_(-1), right_enc_cpr_(-1)
+    right_enc_a_pin_(-1), right_enc_b_pin_(-1), right_enc_cpr_(-1),
+    left_motor_(nullptr), right_motor_(nullptr)
 {
 }
 
@@ -42,9 +47,7 @@ DiffbotSystem::~DiffbotSystem()
 CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
 {
     if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
-    {
         return CallbackReturn::ERROR;
-    }
 
     // const info was used to initialize non-const info_
     // info_.hardware_parameters key and value are both std::string
@@ -94,54 +97,122 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
 }
 
 
-CallbackReturn DiffbotSystem::on_configure(const State& /*previous_state*/)
+CallbackReturn DiffbotSystem::on_configure(const State& previous_state)
 {
+    assert(previous_state.label() == "unconfigured");
 
-// Write the on_configure method where you usually setup the
-// communication to the hardware and set everything up so that the
-// hardware can be activated.
+    // Usually set up the communication to the hardware and set everything up
+    // so that the hardware can be activated
 
-    return CallbackReturn::ERROR;
+    for (const auto & [name, descr] : joint_state_interfaces_)
+        set_state(name, 1.0);
+
+    for (const auto & [name, descr] : joint_command_interfaces_)
+        set_command(name, 0.0);
+
+    return CallbackReturn::SUCCESS;
 }
 
 
-// Implement on_cleanup method, which does the opposite of on_configure.
+// on_cleanup method does the opposite of on_configure
 
 
-CallbackReturn DiffbotSystem::on_activate(const State& /*previous_state*/)
+CallbackReturn DiffbotSystem::on_activate(const State& previous_state)
 {
+    assert(previous_state.label() == "inactive");
+    assert(left_motor_ == nullptr);
+    assert(right_motor_ == nullptr);
 
-// Implement the on_activate method where hardware “power” is enabled.
+    left_motor_ = new MotorCtrl(gpio_dev_name_.c_str(), left_dir_pin_,
+                                pwm_chip_name_.c_str(), left_pwm_num_,
+                                left_pwm_rev_, left_enc_a_pin_,
+                                left_enc_b_pin_, left_enc_cpr_);
 
-    return CallbackReturn::ERROR;
+    right_motor_ = new MotorCtrl(gpio_dev_name_.c_str(), right_dir_pin_,
+                                 pwm_chip_name_.c_str(), right_pwm_num_,
+                                 right_pwm_rev_, right_enc_a_pin_,
+                                 right_enc_b_pin_, right_enc_cpr_);
+
+    return CallbackReturn::SUCCESS;
 }
 
-CallbackReturn DiffbotSystem::on_deactivate(const State& /*previous_state*/)
+CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
 {
+    assert(previous_state.label() == "active");
+    assert(left_motor_ != nullptr);
+    assert(right_motor_ != nullptr);
 
-// Implement the on_deactivate method, which does the opposite of
-// on_activate.
+    delete left_motor_;
+    left_motor_ = nullptr;
 
-    return CallbackReturn::ERROR;
+    delete right_motor_;
+    right_motor_ = nullptr;
+
+    return CallbackReturn::SUCCESS;
 }
 
-return_type DiffbotSystem::read(const Time& /*time*/, const Duration& /*period*/)
+return_type DiffbotSystem::read(const Time& /*time*/, const Duration& period)
 {
 
-// Implement the read method getting the states from the hardware and
-// storing them to internal variables defined in
-// export_state_interfaces.
+    // Implement the read method getting the states from the hardware and
+    // storing them to internal variables defined in
+    // export_state_interfaces.
 
-    return return_type::ERROR;
+#if 1
+    std::stringstream ss;
+    ss << "Reading states:" << std::fixed << std::setprecision(2);
+
+    // for (const auto & [name, descr] : joint_state_interfaces_)
+    // if descr.get_name() == "right_wheel_joint/velocity", then
+    //    descr.get_prefix_name() == "right_wheel_joint" and
+    //    descr.get_interface_name() == "velocity"
+
+    auto l_pos = get_state("left_wheel_joint/position");
+    auto l_vel = get_command("left_wheel_joint/velocity");
+    l_pos += period.seconds() * l_vel;
+    set_state("left_wheel_joint/position", l_pos);
+
+    ss << endl
+       << "    left_wheel_joint/position: " << get_state("left_wheel_joint/position")
+       << endl
+       << "    left_wheel_joint/velocity: " << get_command("left_wheel_joint/velocity");
+
+    auto r_pos = get_state("right_wheel_joint/position");
+    auto r_vel = get_command("right_wheel_joint/velocity");
+    r_pos += period.seconds() * r_vel;
+    set_state("right_wheel_joint/position", r_pos);
+
+    ss << endl
+       << "    right_wheel_joint/position: " << get_state("right_wheel_joint/position")
+       << endl
+       << "    right_wheel_joint/velocity: " << get_command("right_wheel_joint/velocity");
+
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
+#endif
+
+    return return_type::OK;
 }
 
 return_type DiffbotSystem::write(const Time& /*time*/, const Duration& /*period*/)
 {
 
-// Implement write method that commands the hardware based on the values
-// stored in internal variables defined in export_command_interfaces.
+    // Implement write method that commands the hardware based on the values
+    // stored in internal variables defined in export_command_interfaces.
 
-    return return_type::ERROR;
+#if 1
+    std::stringstream ss;
+    ss << "Writing commands:" << std::fixed << std::setprecision(2);
+    for (const auto & [name, descr] : joint_command_interfaces_)
+    {
+        set_state(name, get_command(name));
+        ss << endl
+           << "        " << name << ":"
+           << " command=" << get_command(name);
+    }
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
+#endif
+
+  return return_type::OK;
 }
 
 }; // namespace diffbot
