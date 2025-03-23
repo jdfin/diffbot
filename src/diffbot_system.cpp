@@ -138,6 +138,7 @@ CallbackReturn DiffbotSystem::on_activate(const State& previous_state)
     return CallbackReturn::SUCCESS;
 }
 
+
 CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
 {
     assert(previous_state.label() == "active");
@@ -153,66 +154,47 @@ CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
     return CallbackReturn::SUCCESS;
 }
 
-return_type DiffbotSystem::read(const Time& /*time*/, const Duration& /*period*/)
+
+return_type DiffbotSystem::read(const Time&, const Duration&)
 {
 
-#if 1
     set_state("left_wheel_joint/position", left_rad_);
     set_state("left_wheel_joint/velocity", left_rps_);
     set_state("right_wheel_joint/position", right_rad_);
     set_state("right_wheel_joint/velocity", right_rps_);
-#else
-    auto l_pos = get_state("left_wheel_joint/position");
-    auto l_vel = get_command("left_wheel_joint/velocity");
-    l_pos += period.seconds() * l_vel;
-    set_state("left_wheel_joint/position", l_pos);
 
-    auto r_pos = get_state("right_wheel_joint/position");
-    auto r_vel = get_command("right_wheel_joint/velocity");
-    r_pos += period.seconds() * r_vel;
-    set_state("right_wheel_joint/position", r_pos);
-
-    std::stringstream ss;
-    ss << endl << std::fixed << std::setprecision(2)
-       << "Reading states:"
-       << "    pos: " << l_pos << " " << r_pos
-       << "    vel: " << l_vel << " " << r_vel;
-
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
-#endif
+    if (left_rps_ != 0.0 || right_rps_ != 0.0) {
+        RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
+                             "read: vel=(%0.2f %0.2f)", left_rps_, right_rps_);
+    }
 
     return return_type::OK;
 }
 
-return_type DiffbotSystem::write(const Time& /*time*/, const Duration& /*period*/)
+
+return_type DiffbotSystem::write(const Time&, const Duration&)
 {
     assert(left_motor_ != nullptr);
     assert(right_motor_ != nullptr);
 
-#if 1
     auto l_rps = get_command("left_wheel_joint/velocity");
-    //set_state("left_wheel_joint/velocity", l_rps);
-
     auto r_rps = get_command("right_wheel_joint/velocity");
-    //set_state("right_wheel_joint/velocity", r_rps);
-
-    //std::stringstream ss;
-    //ss << endl << std::fixed << std::setprecision(2)
-       //<< "Writing commands:"
-       //<< "    vel: " << l_rps << " " << r_rps;
-
-    //RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
-#endif
 
     left_motor_->speed_rps(l_rps, 0, left_rad_, left_rps_);
     right_motor_->speed_rps(r_rps, 0, right_rad_, right_rps_);
 
+    if (l_rps != 0.0 || r_rps != 0.0 || left_rps_ != 0.0 || right_rps_ != 0.0) {
+        RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
+                             "write: cmd=(%0.2f %0.2f) act=(%0.2f %0.2f)",
+                             l_rps, r_rps, left_rps_, right_rps_);
+    }
+
     return return_type::OK;
 }
+
 
 }; // namespace diffbot
 
 
 #include "pluginlib/class_list_macros.hpp"
-
 PLUGINLIB_EXPORT_CLASS(diffbot::DiffbotSystem, SystemInterface)
