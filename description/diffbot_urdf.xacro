@@ -5,11 +5,7 @@
   <xacro:arg name="prefix" default=""/>
 
   <!-- defines diffbot(prefix) -->
-  <!-- uses the <material> definitions -->
   <xacro:include filename="$(find diffbot)/description/diffbot_description_urdf.xacro"/>
-
-  <!-- defines several <material> names -->
-  <xacro:include filename="$(find diffbot)/description/material.xacro"/>
 
   <!-- defines diffbot_ros2_control(name, prefix) -->
   <xacro:include filename="$(find diffbot)/description/diffbot_ros2_control.xacro"/>
