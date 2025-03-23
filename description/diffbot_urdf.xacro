@@ -3,7 +3,6 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diffdrive_robot">
 
   <xacro:arg name="prefix" default=""/>
-  <xacro:arg name="use_mock_hardware" default="false"/>
 
   <!-- defines diffbot(prefix) -->
   <!-- uses the <material> definitions -->
@@ -12,11 +11,11 @@
   <!-- defines several <material> names -->
   <xacro:include filename="$(find diffbot)/description/material.xacro"/>
 
-  <!-- defines diffbot_ros2_control(name, prefix, use_mock_hardware) -->
+  <!-- defines diffbot_ros2_control(name, prefix) -->
   <xacro:include filename="$(find diffbot)/description/diffbot_ros2_control.xacro"/>
 
   <xacro:diffbot prefix="$(arg prefix)"/>
 
-  <xacro:diffbot_ros2_control name="Diffbot" prefix="$(arg prefix)" use_mock_hardware="$(arg use_mock_hardware)"/>
+  <xacro:diffbot_ros2_control name="Diffbot" prefix="$(arg prefix)"/>
 
 </robot>
