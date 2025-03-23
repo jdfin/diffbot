@@ -6,11 +6,24 @@
 
   <xacro:macro name="diffbot" params="prefix">
 
+    /!-- matches wheel_separation in diffbot_controllers.yaml -->
+    <xacro:property name="track" value="0.154" />
+
     <link name="${prefix}base_link"/>
 
     <joint name="${prefix}left_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}left_wheel"/>
+      <!-- These are only used when viewing the /tf topic using rviz2; they
+      make it so the wheel rotation looks correct. Driving the robot works
+      fine without them. +X is forward, +Y is left, and +Z is up. The origin
+      xyz is how to get from the parent to child origin, so positive Y means
+      to the left. Origin rpy is zero, so +X is still forward and +Y is still
+      left. Not sure how to interpret the axis vector but this makes it look
+      correct in rviz2.
+      -->
+      <origin xyz="0 +${track/2} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
     </joint>
 
     <link name="${prefix}left_wheel"/>
@@ -18,6 +31,8 @@
     <joint name="${prefix}right_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}right_wheel"/>
+      <origin xyz="0 -${track/2} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
     </joint>
 
     <link name="${prefix}right_wheel"/>

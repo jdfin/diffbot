@@ -165,7 +165,8 @@ return_type DiffbotSystem::read(const Time&, const Duration&)
 
     if (left_rps_ != 0.0 || right_rps_ != 0.0) {
         RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
-                             "read: vel=(%0.2f %0.2f)", left_rps_, right_rps_);
+                             "read: pos=(%0.1f %0.1f) vel=(%0.2f %0.2f)",
+                             left_rad_, right_rad_, left_rps_, right_rps_);
     }
 
     return return_type::OK;

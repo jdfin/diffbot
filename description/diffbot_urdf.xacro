@@ -4,10 +4,16 @@
 
   <xacro:arg name="prefix" default=""/>
 
-  <!-- defines diffbot(prefix) -->
+  <!--
+    defines diffbot(prefix)
+    links and joints
+  -->
   <xacro:include filename="$(find diffbot)/description/diffbot_description_urdf.xacro"/>
 
-  <!-- defines diffbot_ros2_control(name, prefix) -->
+  <!--
+    defines diffbot_ros2_control(name, prefix)
+    things required for ros2_control
+  -->
   <xacro:include filename="$(find diffbot)/description/diffbot_ros2_control.xacro"/>
 
   <xacro:diffbot prefix="$(arg prefix)"/>
