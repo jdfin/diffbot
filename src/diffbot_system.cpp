@@ -105,7 +105,7 @@ CallbackReturn DiffbotSystem::on_configure(const State& previous_state)
     // so that the hardware can be activated
 
     for (const auto & [name, descr] : joint_state_interfaces_)
-        set_state(name, 1.0);
+        set_state(name, 0.0);
 
     for (const auto & [name, descr] : joint_command_interfaces_)
         set_command(name, 0.0);
@@ -154,38 +154,22 @@ CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
 return_type DiffbotSystem::read(const Time& /*time*/, const Duration& period)
 {
 
-    // Implement the read method getting the states from the hardware and
-    // storing them to internal variables defined in
-    // export_state_interfaces.
-
 #if 1
-    std::stringstream ss;
-    ss << "Reading states:" << std::fixed << std::setprecision(2);
-
-    // for (const auto & [name, descr] : joint_state_interfaces_)
-    // if descr.get_name() == "right_wheel_joint/velocity", then
-    //    descr.get_prefix_name() == "right_wheel_joint" and
-    //    descr.get_interface_name() == "velocity"
-
     auto l_pos = get_state("left_wheel_joint/position");
     auto l_vel = get_command("left_wheel_joint/velocity");
     l_pos += period.seconds() * l_vel;
     set_state("left_wheel_joint/position", l_pos);
-
-    ss << endl
-       << "    left_wheel_joint/position: " << get_state("left_wheel_joint/position")
-       << endl
-       << "    left_wheel_joint/velocity: " << get_command("left_wheel_joint/velocity");
 
     auto r_pos = get_state("right_wheel_joint/position");
     auto r_vel = get_command("right_wheel_joint/velocity");
     r_pos += period.seconds() * r_vel;
     set_state("right_wheel_joint/position", r_pos);
 
-    ss << endl
-       << "    right_wheel_joint/position: " << get_state("right_wheel_joint/position")
-       << endl
-       << "    right_wheel_joint/velocity: " << get_command("right_wheel_joint/velocity");
+    std::stringstream ss;
+    ss << endl << std::fixed << std::setprecision(2)
+       << "Reading states:"
+       << "    pos: " << l_pos << " " << r_pos
+       << "    vel: " << l_vel << " " << r_vel;
 
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
 #endif
@@ -196,23 +180,22 @@ return_type DiffbotSystem::read(const Time& /*time*/, const Duration& period)
 return_type DiffbotSystem::write(const Time& /*time*/, const Duration& /*period*/)
 {
 
-    // Implement write method that commands the hardware based on the values
-    // stored in internal variables defined in export_command_interfaces.
-
 #if 1
+    auto l_vel = get_command("left_wheel_joint/velocity");
+    set_state("left_wheel_joint/velocity", l_vel);
+
+    auto r_vel = get_command("right_wheel_joint/velocity");
+    set_state("right_wheel_joint/velocity", r_vel);
+
     std::stringstream ss;
-    ss << "Writing commands:" << std::fixed << std::setprecision(2);
-    for (const auto & [name, descr] : joint_command_interfaces_)
-    {
-        set_state(name, get_command(name));
-        ss << endl
-           << "        " << name << ":"
-           << " command=" << get_command(name);
-    }
+    ss << endl << std::fixed << std::setprecision(2)
+       << "Writing commands:"
+       << "    vel: " << l_vel << " " << r_vel;
+
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "%s", ss.str().c_str());
 #endif
 
-  return return_type::OK;
+    return return_type::OK;
 }
 
 }; // namespace diffbot
