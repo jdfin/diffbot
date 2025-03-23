@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
+
+<!-- included by, and macro expanded in, diffbot_urdf.xacro -->
+
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:macro name="diffbot" params="prefix">

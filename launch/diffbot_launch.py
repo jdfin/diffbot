@@ -19,9 +19,9 @@ def generate_launch_description():
                 [FindExecutable(name="xacro")]
             ),
             " ",
-            # <ws>/install/diffbot/share/diffbot/description/diffbot.urdf.xacro
+            # <ws>/install/diffbot/share/diffbot/description/diffbot_urdf.xacro
             PathJoinSubstitution(
-                [FindPackageShare("diffbot"), "description", "diffbot.urdf.xacro"]
+                [FindPackageShare("diffbot"), "description", "diffbot_urdf.xacro"]
             ),
         ]
     )

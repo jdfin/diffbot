@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<!--
-Copied from ROS1 example:
-https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_description/urdf/materials.xacro
--->
+
+<!-- included by diffbot_urdf.xacro -->
+<!-- definitions used by diffbot_description_urdf.xacro -->
+
 <robot>
 
   <material name="black">
@@ -22,11 +22,11 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
   </material>
 
   <material name="orange">
-    <color rgba="${255/255} ${108/255} ${10/255} 1.0"/>
+    <color rgba="1.0 0.42 0.039 1.0"/>
   </material>
 
   <material name="brown">
-    <color rgba="${222/255} ${207/255} ${195/255} 1.0"/>
+    <color rgba="0.87 0.81 0.76 1.0"/>
   </material>
 
   <material name="red">
