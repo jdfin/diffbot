@@ -2,22 +2,20 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diffdrive_robot">
 
-  <xacro:arg name="prefix" default=""/>
-
   <!--
-    defines diffbot(prefix)
+    defines diffbot()
     links and joints
   -->
   <xacro:include filename="$(find diffbot)/description/diffbot_description_urdf.xacro"/>
 
   <!--
-    defines diffbot_ros2_control(name, prefix)
+    defines diffbot_ros2_control(name)
     things required for ros2_control
   -->
   <xacro:include filename="$(find diffbot)/description/diffbot_ros2_control.xacro"/>
 
-  <xacro:diffbot prefix="$(arg prefix)"/>
+  <xacro:diffbot/>
 
-  <xacro:diffbot_ros2_control name="Diffbot" prefix="$(arg prefix)"/>
+  <xacro:diffbot_ros2_control name="Diffbot"/>
 
 </robot>

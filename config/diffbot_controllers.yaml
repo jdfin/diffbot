@@ -1,9 +1,11 @@
 controller_manager:
   ros__parameters:
-    update_rate: 10 # Hz
-
+    update_rate: 10
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+# diff_drive_controller user doc:
+# https://control.ros.org/jazzy/doc/ros2_controllers/diff_drive_controller/doc/userdoc.html
 
 diffbot_base_controller:
   ros__parameters:
@@ -12,14 +14,21 @@ diffbot_base_controller:
     left_wheel_names: ["left_wheel_joint"]
     right_wheel_names: ["right_wheel_joint"]
 
+    # Measured
     wheel_separation: 0.154
     wheel_radius: 0.033
 
-    publish_rate: 10.0
-    odom_frame_id: odom
+    # Default for this is 50. Perhaps 10 is too low, especially since
+    # velocity_rolling_window_size defaults to 10.
+    publish_rate: 10
+
+    odom_frame_id: odom # Not the topic - the tf frame ID
     base_frame_id: base_link
-    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+
+    # It would be nice to figure out what these might affect. These values are
+    # suggested as starting points in the diff_drive_controller user doc.
+    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
 
     open_loop: true
     enable_odom_tf: true

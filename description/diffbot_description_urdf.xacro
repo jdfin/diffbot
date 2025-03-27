@@ -4,38 +4,61 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="diffbot" params="prefix">
+  <xacro:macro name="diffbot">
 
-    /!-- matches wheel_separation in diffbot_controllers.yaml -->
+    <!-- matches wheel_separation in diffbot_controllers.yaml -->
     <xacro:property name="track" value="0.154" />
 
-    <link name="${prefix}base_link"/>
+    <link name="base_link"/>
 
-    <joint name="${prefix}left_wheel_joint" type="continuous">
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}left_wheel"/>
+    <!-- slam_toolbox seems to want "base_footprint"; make it the same as
+    base_link. It could probably be done with a slam_toolbox parameter, but
+    there should really be a base_footprint anyway. -->
+
+    <joint name="base_footprint_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="base_footprint"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="base_footprint"/>
+
+    <!-- RPLidar might want "laser" link; make it the same as "base_link" but
+    rotated so they have the same forward direction. It should be raised up
+    a bit, but that doesn't really matter yet. -->
+
+    <joint name="laser_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="laser"/>
+      <origin xyz="0 0 0" rpy="0 0 ${pi}"/>
+    </joint>
+
+    <link name="laser"/>
+
+    <joint name="left_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="left_wheel"/>
       <!-- These are only used when viewing the /tf topic using rviz2; they
       make it so the wheel rotation looks correct. Driving the robot works
-      fine without them. +X is forward, +Y is left, and +Z is up. The origin
-      xyz is how to get from the parent to child origin, so positive Y means
-      to the left. Origin rpy is zero, so +X is still forward and +Y is still
-      left. Not sure how to interpret the axis vector but this makes it look
-      correct in rviz2.
-      -->
-      <origin xyz="0 +${track/2} 0" rpy="0 0 0"/>
-      <axis xyz="0 1 0"/>
+      fine without them. See http://wiki.ros.org/urdf/XML/joint.
+      +X is forward, +Y is left, and +Z is up. The origin xyz is how to get
+      from the parent to child origin, so positive Y means to the left. To
+      make the wheel rotate around Z, "roll" the origin counterclockwise
+      (negative) 180 degrees. -->
+      <origin xyz="0 +${track/2} 0" rpy="-${pi/2} 0 0"/>
+      <axis xyz="0 0 +1"/>
     </joint>
 
-    <link name="${prefix}left_wheel"/>
+    <link name="left_wheel"/>
 
-    <joint name="${prefix}right_wheel_joint" type="continuous">
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}right_wheel"/>
-      <origin xyz="0 -${track/2} 0" rpy="0 0 0"/>
-      <axis xyz="0 1 0"/>
+    <joint name="right_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="right_wheel"/>
+      <origin xyz="0 -${track/2} 0" rpy="+${pi/2} 0 0"/>
+      <axis xyz="0 0 -1"/>
     </joint>
 
-    <link name="${prefix}right_wheel"/>
+    <link name="right_wheel"/>
 
   </xacro:macro>
 

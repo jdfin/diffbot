@@ -87,6 +87,7 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
         << "  right/enc_cpr = " << right_enc_cpr_ << endl;
 #endif
 
+#if 0
     cout << "info.joints:" << endl;
     if (info.joints.size() > 0) {
         for (unsigned i = 0; i < info.joints.size(); i++)
@@ -94,6 +95,7 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
     } else {
         cout << "  (none)" << endl;
     }
+#endif
 
     return CallbackReturn::SUCCESS;
 }
@@ -163,11 +165,13 @@ return_type DiffbotSystem::read(const Time&, const Duration&)
     set_state("right_wheel_joint/position", right_rad_);
     set_state("right_wheel_joint/velocity", right_rps_);
 
+#if 0
     if (left_rps_ != 0.0 || right_rps_ != 0.0) {
         RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
                              "read: pos=(%0.1f %0.1f) vel=(%0.2f %0.2f)",
                              left_rad_, right_rad_, left_rps_, right_rps_);
     }
+#endif
 
     return return_type::OK;
 }
@@ -184,11 +188,13 @@ return_type DiffbotSystem::write(const Time&, const Duration&)
     left_motor_->speed_rps(l_rps, 0, left_rad_, left_rps_);
     right_motor_->speed_rps(r_rps, 0, right_rad_, right_rps_);
 
+#if 0
     if (l_rps != 0.0 || r_rps != 0.0 || left_rps_ != 0.0 || right_rps_ != 0.0) {
         RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
                              "write: cmd=(%0.2f %0.2f) act=(%0.2f %0.2f)",
                              l_rps, r_rps, left_rps_, right_rps_);
     }
+#endif
 
     return return_type::OK;
 }

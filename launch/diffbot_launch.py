@@ -64,8 +64,8 @@ def generate_launch_description():
             "diffbot_base_controller",
             "--param-file",
             robot_controllers,
-            "--controller-ros-args",
-            "-r /diffbot_base_controller/cmd_vel:=/cmd_vel",
+            "--controller-ros-args", # following arguments have to all be in the same string
+            "--remap /diffbot_base_controller/cmd_vel:=/cmd_vel --remap /diffbot_base_controller/odom:=/odom",
         ],
     )
 
