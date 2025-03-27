@@ -19,8 +19,8 @@ diffbot_base_controller:
     wheel_radius: 0.033
 
     # Default for this is 50. Perhaps 10 is too low, especially since
-    # velocity_rolling_window_size defaults to 10.
-    publish_rate: 10
+    # velocity_rolling_window_size defaults to 10. Must be double!
+    publish_rate: 10.0
 
     odom_frame_id: odom # Not the topic - the tf frame ID
     base_frame_id: base_link
