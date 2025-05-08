@@ -2,7 +2,7 @@
 # https://control.ros.org/rolling/doc/ros2_control/hardware_interface/doc/writing_new_hardware_component.html
 
 cmake_minimum_required(VERSION 3.8)
-project(diffbot)
+project(rosbot)
 
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
@@ -22,23 +22,23 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
-add_library(diffbot SHARED
-  src/diffbot_system.cpp
+add_library(rosbot SHARED
+  src/rosbot_system.cpp
 )
 
-target_include_directories(diffbot PUBLIC
+target_include_directories(rosbot PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 
-ament_target_dependencies(diffbot PUBLIC
+ament_target_dependencies(rosbot PUBLIC
   hardware_interface
   pluginlib
   rclcpp
   rclcpp_lifecycle
 )
 
-pluginlib_export_plugin_description_file(hardware_interface diffbot.xml)
+pluginlib_export_plugin_description_file(hardware_interface rosbot.xml)
 
 install(DIRECTORY include
   DESTINATION include/${PROJECT_NAME}
@@ -48,7 +48,7 @@ install(DIRECTORY config description launch
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS diffbot
+install(TARGETS rosbot
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -61,8 +61,8 @@ install(TARGETS diffbot
 if(BUILD_TESTING)
 
   find_package(ament_cmake_gmock REQUIRED)
-  ament_add_gmock(test_load_diffbot test/test_load_diffbot.cpp)
-  ament_target_dependencies(test_load_diffbot hardware_interface)
+  ament_add_gmock(test_load_rosbot test/test_load_rosbot.cpp)
+  ament_target_dependencies(test_load_rosbot hardware_interface)
 
 endif()
 

@@ -10,7 +10,7 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
-    # FindPackageShare("diffbot") -> <ws>/install/diffbot/share/diffbot
+    # FindPackageShare("rosbot") -> <ws>/install/rosbot/share/rosbot
 
     robot_description_content = Command(
         [
@@ -19,24 +19,24 @@ def generate_launch_description():
                 [FindExecutable(name="xacro")]
             ),
             " ",
-            # <ws>/install/diffbot/share/diffbot/description/diffbot_urdf.xacro
+            # <ws>/install/rosbot/share/rosbot/description/rosbot_urdf.xacro
             PathJoinSubstitution(
-                [FindPackageShare("diffbot"), "description", "diffbot_urdf.xacro"]
+                [FindPackageShare("rosbot"), "description", "rosbot_urdf.xacro"]
             ),
         ]
     )
 
     robot_description = {"robot_description": robot_description_content}
 
-    # <ws>/install/diffbot/share/diffbot/config/diffbot_controllers.yaml
+    # <ws>/install/rosbot/share/rosbot/config/rosbot_controllers.yaml
     # contains ros parameters for the nodes:
     #   controller_manager
-    #   diffbot_base_controller
+    #   rosbot_base_controller
     robot_controllers = PathJoinSubstitution(
-        [ FindPackageShare("diffbot"), "config", "diffbot_controllers.yaml", ]
+        [ FindPackageShare("rosbot"), "config", "rosbot_controllers.yaml", ]
     )
 
-    # <ws>/install/diffbot/share/diffbot/config/diffbot_controllers.yaml
+    # <ws>/install/rosbot/share/rosbot/config/rosbot_controllers.yaml
     # has a section "controller_manager"
     control_node = Node(
         package="controller_manager",
@@ -55,8 +55,8 @@ def generate_launch_description():
         #arguments=['--ros-args', '--log-level', 'debug']
     )
 
-    # <ws>/install/diffbot/share/diffbot/config/diffbot_controllers.yaml
-    # has a section "diffbot_base_controller"
+    # <ws>/install/rosbot/share/rosbot/config/rosbot_controllers.yaml
+    # has a section "rosbot_base_controller"
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",

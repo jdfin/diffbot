@@ -26,12 +26,12 @@ using hardware_interface::ResourceManager;
 using rclcpp::Node;
 
 
-class TestDiffbotSystem : public ::testing::Test
+class TestRosBotSystem : public ::testing::Test
 {
 protected:
   void SetUp() override
   {
-    diffbot_system = R"(
+    rosbot_system = R"(
 <?xml version="1.0" encoding="utf-8"?>
 <robot name="MinimalRobot">
 
@@ -61,10 +61,10 @@ protected:
 
   <link name="link2"/>
 
-  <ros2_control name="MockDiffbotSystem" type="system">
+  <ros2_control name="MockRosBotSystem" type="system">
 
     <hardware>
-      <plugin>diffbot/DiffbotSystem</plugin>
+      <plugin>rosbot/RosBotSystem</plugin>
     </hardware>
 
     <joint name="joint1">
@@ -86,8 +86,8 @@ protected:
 </robot>
 )";
   }
-  string diffbot_system;
-  Node node_ = Node("TestDiffbotSystem");
+  string rosbot_system;
+  Node node_ = Node("TestRosBotSystem");
 };
 
 
@@ -105,9 +105,9 @@ public:
 };
 
 
-TEST_F(TestDiffbotSystem, load_diffbot_system)
+TEST_F(TestRosBotSystem, load_rosbot_system)
 {
-  ASSERT_NO_THROW(TestableResourceManager rm(node_, diffbot_system));
+  ASSERT_NO_THROW(TestableResourceManager rm(node_, rosbot_system));
 }
 
 

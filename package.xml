@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>diffbot</name>
+  <name>rosbot</name>
   <version>0.0.0</version>
   <description>My package, my stuff</description>
   <maintainer email="nobody@nowhere.com">Dr. Nobody</maintainer>
@@ -17,11 +17,9 @@
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
-  <!-- <exec_depend>ros2_control_demo_description</exec_depend> XXX -->
   <exec_depend>ros2_controllers_test_nodes</exec_depend>
   <exec_depend>ros2controlcli</exec_depend>
   <exec_depend>ros2launch</exec_depend>
-  <!-- <exec_depend>rviz2</exec_depend> XXX -->
   <exec_depend>xacro</exec_depend>
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>launch_testing</test_depend>

@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 
-<!-- included by, and macro expanded in, diffbot_urdf.xacro -->
+<!-- included by, and macro expanded in, rosbot_urdf.xacro -->
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="diffbot">
+  <xacro:macro name="rosbot">
 
-    <!-- matches wheel_separation in diffbot_controllers.yaml -->
+    <!-- matches wheel_separation in rosbot_controllers.yaml -->
     <xacro:property name="track" value="0.154" />
 
     <link name="base_link"/>

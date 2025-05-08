@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diffdrive_robot">
+
+  <!--
+    defines rosbot()
+    links and joints
+  -->
+  <xacro:include filename="$(find rosbot)/description/rosbot_description_urdf.xacro"/>
+
+  <!--
+    defines rosbot_ros2_control(name)
+    things required for ros2_control
+  -->
+  <xacro:include filename="$(find rosbot)/description/rosbot_ros2_control.xacro"/>
+
+  <xacro:rosbot/>
+
+  <xacro:rosbot_ros2_control name="RosBot"/>
+
+</robot>

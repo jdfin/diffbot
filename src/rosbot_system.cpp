@@ -9,7 +9,7 @@
 using std::cout;
 using std::endl;
 
-#include "diffbot/diffbot_system.hpp"
+#include "rosbot/rosbot_system.hpp"
 
 #include "hardware_interface/lexical_casts.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
@@ -26,11 +26,11 @@ using rclcpp::Time;
 using rclcpp::Duration;
 
 
-namespace diffbot
+namespace rosbot
 {
 
 
-DiffbotSystem::DiffbotSystem() :
+RosBotSystem::RosBotSystem() :
     ser_dev_name_(""), ser_fd_(-1),
     left_rad_(0.0), left_rps_(0.0),
     right_rad_(0.0), right_rps_(0.0)
@@ -38,12 +38,12 @@ DiffbotSystem::DiffbotSystem() :
 }
 
 
-DiffbotSystem::~DiffbotSystem()
+RosBotSystem::~RosBotSystem()
 {
 }
 
 
-CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
+CallbackReturn RosBotSystem::on_init(const HardwareInfo& info)
 {
     if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
         return CallbackReturn::ERROR;
@@ -72,7 +72,7 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
 }
 
 
-CallbackReturn DiffbotSystem::on_configure(const State& previous_state)
+CallbackReturn RosBotSystem::on_configure(const State& previous_state)
 {
     assert(previous_state.label() == "unconfigured");
 
@@ -92,7 +92,7 @@ CallbackReturn DiffbotSystem::on_configure(const State& previous_state)
 // on_cleanup method does the opposite of on_configure
 
 
-CallbackReturn DiffbotSystem::on_activate(const State& previous_state)
+CallbackReturn RosBotSystem::on_activate(const State& previous_state)
 {
     assert(previous_state.label() == "inactive");
 
@@ -119,7 +119,7 @@ CallbackReturn DiffbotSystem::on_activate(const State& previous_state)
 }
 
 
-CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
+CallbackReturn RosBotSystem::on_deactivate(const State& previous_state)
 {
     assert(previous_state.label() == "active");
 
@@ -131,9 +131,9 @@ CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
 }
 
 
-return_type DiffbotSystem::read(const Time&, const Duration&)
+return_type RosBotSystem::read(const Time&, const Duration&)
 {
-    //cout << "DiffbotSystem::read: enter" << endl;
+    //cout << "RosBotSystem::read: enter" << endl;
 
     set_state("left_wheel_joint/position", left_rad_);
     set_state("left_wheel_joint/velocity", left_rps_);
@@ -148,15 +148,15 @@ return_type DiffbotSystem::read(const Time&, const Duration&)
     }
 #endif
 
-    //cout << "DiffbotSystem::read: return OK" << endl;
+    //cout << "RosBotSystem::read: return OK" << endl;
 
     return return_type::OK;
 }
 
 
-return_type DiffbotSystem::write(const Time&, const Duration&)
+return_type RosBotSystem::write(const Time&, const Duration&)
 {
-    //cout << "DiffbotSystem::write: enter" << endl;
+    //cout << "RosBotSystem::write: enter" << endl;
 
     assert(ser_fd_ != -1);
 
@@ -173,7 +173,7 @@ return_type DiffbotSystem::write(const Time&, const Duration&)
 
     sprintf(buf, "s %d %d", l_sps, r_sps);
 
-    //cout << "DiffbotSystem::write: sending \"" << buf << "\"" << endl;
+    //cout << "RosBotSystem::write: sending \"" << buf << "\"" << endl;
     ::write(ser_fd_, buf, strlen(buf) + 1);
 
     // get current step counts
@@ -193,7 +193,7 @@ return_type DiffbotSystem::write(const Time&, const Duration&)
             break;
     }
 
-    //cout << "DiffbotSystem::write: received \"" << buf << "\"" << endl;
+    //cout << "RosBotSystem::write: received \"" << buf << "\"" << endl;
 
     int32_t l_step, r_step;
     if (sscanf(buf, "g %d %d", &l_step, &r_step) == 2) {
@@ -210,14 +210,14 @@ return_type DiffbotSystem::write(const Time&, const Duration&)
     }
 #endif
 
-    //cout << "DiffbotSystem::write: return OK" << endl;
+    //cout << "RosBotSystem::write: return OK" << endl;
 
     return return_type::OK;
 }
 
 
-}; // namespace diffbot
+}; // namespace rosbot
 
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(diffbot::DiffbotSystem, SystemInterface)
+PLUGINLIB_EXPORT_CLASS(rosbot::RosBotSystem, SystemInterface)

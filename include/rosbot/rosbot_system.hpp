@@ -1,20 +1,20 @@
-#ifndef DIFFBOT__DIFFBOT_SYSTEM_HPP
-#define DIFFBOT__DIFFBOT_SYSTEM_HPP
+#ifndef DIFFBOT__ROSBOT_SYSTEM_HPP
+#define DIFFBOT__ROSBOT_SYSTEM_HPP
 
 #include "hardware_interface/system_interface.hpp"
 
 
-namespace diffbot
+namespace rosbot
 {
 
-class DiffbotSystem : public hardware_interface::SystemInterface
+class RosBotSystem : public hardware_interface::SystemInterface
 {
 
     public:
 
-        DiffbotSystem();
+        RosBotSystem();
 
-        virtual ~DiffbotSystem();
+        virtual ~RosBotSystem();
 
         hardware_interface::CallbackReturn
         on_init(const hardware_interface::HardwareInfo & info) override;
@@ -45,8 +45,8 @@ class DiffbotSystem : public hardware_interface::SystemInterface
         double right_rad_;
         double right_rps_;
 
-}; // class DiffbotSystem
+}; // class RosBotSystem
 
-}; // namespace diffbot
+}; // namespace rosbot
 
-#endif // DIFFBOT__DIFFBOT_SYSTEM_HPP
+#endif // DIFFBOT__ROSBOT_SYSTEM_HPP

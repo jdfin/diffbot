@@ -1,6 +1,6 @@
-<library path="diffbot">
-  <class name="diffbot/DiffbotSystem"
-         type="diffbot::DiffbotSystem"
+<library path="rosbot">
+  <class name="rosbot/RosBotSystem"
+         type="rosbot::RosBotSystem"
          base_class_type="hardware_interface::SystemInterface">
     <description>
       Yet another diffbot.
