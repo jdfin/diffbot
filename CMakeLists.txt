@@ -24,19 +24,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 
 add_library(diffbot SHARED
   src/diffbot_system.cpp
-  src/motor_ctrl.cpp
-  src/motor.cpp
-  src/pwm.cpp
-  src/encoder.cpp
-  src/util.cpp
 )
-
-find_library(LIB_GPIOD
-    NAMES libgpiod.a
-    REQUIRED
-)
-
-target_link_libraries(diffbot PUBLIC ${LIB_GPIOD})
 
 target_include_directories(diffbot PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

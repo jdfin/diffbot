@@ -1,11 +1,13 @@
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <termios.h>
+
 #include <cassert>
 
 #include <iostream>
 using std::cout;
 using std::endl;
-
-#include "motor_ctrl.h"
 
 #include "diffbot/diffbot_system.hpp"
 
@@ -29,12 +31,7 @@ namespace diffbot
 
 
 DiffbotSystem::DiffbotSystem() :
-    gpio_dev_name_(""), pwm_chip_name_(""),
-    left_dir_pin_(-1), left_pwm_num_(-1), left_pwm_rev_(false),
-    left_enc_a_pin_(-1), left_enc_b_pin_(-1), left_enc_cpr_(-1),
-    right_dir_pin_(-1), right_pwm_num_(-1), right_pwm_rev_(false),
-    right_enc_a_pin_(-1), right_enc_b_pin_(-1), right_enc_cpr_(-1),
-    left_motor_(nullptr), right_motor_(nullptr),
+    ser_dev_name_(""), ser_fd_(-1),
     left_rad_(0.0), left_rps_(0.0),
     right_rad_(0.0), right_rps_(0.0)
 {
@@ -54,37 +51,11 @@ CallbackReturn DiffbotSystem::on_init(const HardwareInfo& info)
     // const info was used to initialize non-const info_
     // info_.hardware_parameters key and value are both std::string
 
-    gpio_dev_name_ = info_.hardware_parameters["gpio_dev_name"];
-    pwm_chip_name_ = info_.hardware_parameters["pwm_chip_name"];
-    left_dir_pin_ = std::stoi(info_.hardware_parameters["left/dir_pin"]);
-    left_pwm_num_ = std::stoi(info_.hardware_parameters["left/pwm_num"]);
-    left_pwm_rev_ = (info_.hardware_parameters["left/pwm_rev"] == "true");
-    left_enc_a_pin_ = std::stoi(info_.hardware_parameters["left/enc_a_pin"]);
-    left_enc_b_pin_ = std::stoi(info_.hardware_parameters["left/enc_b_pin"]);
-    left_enc_cpr_ = std::stoi(info_.hardware_parameters["left/enc_cpr"]);
-    right_dir_pin_ = std::stoi(info_.hardware_parameters["right/dir_pin"]);
-    right_pwm_num_ = std::stoi(info_.hardware_parameters["right/pwm_num"]);
-    right_pwm_rev_ = (info_.hardware_parameters["right/pwm_rev"] == "true");
-    right_enc_a_pin_ = std::stoi(info_.hardware_parameters["right/enc_a_pin"]);
-    right_enc_b_pin_ = std::stoi(info_.hardware_parameters["right/enc_b_pin"]);
-    right_enc_cpr_ = std::stoi(info_.hardware_parameters["right/enc_cpr"]);
+    ser_dev_name_ = info_.hardware_parameters["ser_dev_name"];
 
 #if 1
     cout << "info.hardware_parameters:" << endl
-        << "  gpio_dev_name = \"" << gpio_dev_name_ << "\"" << endl
-        << "  pwm_chip_name = \"" << pwm_chip_name_ << "\"" << endl
-        << "  left/dir_pin = " << left_dir_pin_ << endl
-        << "  left/pwm_num = " << left_pwm_num_ << endl
-        << "  left/pwm_rev = " << (left_pwm_rev_ ? "true" : "false") << endl
-        << "  left/enc_a_pin = " << left_enc_a_pin_ << endl
-        << "  left/enc_b_pin = " << left_enc_b_pin_ << endl
-        << "  left/enc_cpr = " << left_enc_cpr_ << endl
-        << "  right/dir_pin = " << right_dir_pin_ << endl
-        << "  right/pwm_num = " << right_pwm_num_ << endl
-        << "  right/pwm_rev = " << (right_pwm_rev_ ? "true" : "false") << endl
-        << "  right/enc_a_pin = " << right_enc_a_pin_ << endl
-        << "  right/enc_b_pin = " << right_enc_b_pin_ << endl
-        << "  right/enc_cpr = " << right_enc_cpr_ << endl;
+        << "  ser_dev_name = \"" << ser_dev_name_ << "\"" << endl;
 #endif
 
 #if 0
@@ -124,18 +95,25 @@ CallbackReturn DiffbotSystem::on_configure(const State& previous_state)
 CallbackReturn DiffbotSystem::on_activate(const State& previous_state)
 {
     assert(previous_state.label() == "inactive");
-    assert(left_motor_ == nullptr);
-    assert(right_motor_ == nullptr);
 
-    left_motor_ = new MotorCtrl(gpio_dev_name_.c_str(), left_dir_pin_,
-                                pwm_chip_name_.c_str(), left_pwm_num_,
-                                left_pwm_rev_, left_enc_a_pin_,
-                                left_enc_b_pin_, left_enc_cpr_);
+    assert(ser_fd_ == -1);
 
-    right_motor_ = new MotorCtrl(gpio_dev_name_.c_str(), right_dir_pin_,
-                                 pwm_chip_name_.c_str(), right_pwm_num_,
-                                 right_pwm_rev_, right_enc_a_pin_,
-                                 right_enc_b_pin_, right_enc_cpr_);
+    ser_fd_ = open(ser_dev_name_.c_str(), O_RDWR);
+
+#if 0
+    cout << "\"" << ser_dev_name_ << "\" opened" << endl;
+#endif
+
+    assert(ser_fd_ != -1);
+
+    struct termios tc;
+
+    assert(tcgetattr(ser_fd_, &tc) == 0);
+
+    cfmakeraw(&tc);
+    cfsetspeed(&tc, B115200);
+
+    assert(tcsetattr(ser_fd_, TCSANOW, &tc) == 0);
 
     return CallbackReturn::SUCCESS;
 }
@@ -144,14 +122,10 @@ CallbackReturn DiffbotSystem::on_activate(const State& previous_state)
 CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
 {
     assert(previous_state.label() == "active");
-    assert(left_motor_ != nullptr);
-    assert(right_motor_ != nullptr);
 
-    delete left_motor_;
-    left_motor_ = nullptr;
-
-    delete right_motor_;
-    right_motor_ = nullptr;
+    assert(ser_fd_ != -1);
+    close(ser_fd_);
+    ser_fd_ = -1;
 
     return CallbackReturn::SUCCESS;
 }
@@ -159,6 +133,7 @@ CallbackReturn DiffbotSystem::on_deactivate(const State& previous_state)
 
 return_type DiffbotSystem::read(const Time&, const Duration&)
 {
+    //cout << "DiffbotSystem::read: enter" << endl;
 
     set_state("left_wheel_joint/position", left_rad_);
     set_state("left_wheel_joint/velocity", left_rps_);
@@ -173,20 +148,59 @@ return_type DiffbotSystem::read(const Time&, const Duration&)
     }
 #endif
 
+    //cout << "DiffbotSystem::read: return OK" << endl;
+
     return return_type::OK;
 }
 
 
 return_type DiffbotSystem::write(const Time&, const Duration&)
 {
-    assert(left_motor_ != nullptr);
-    assert(right_motor_ != nullptr);
+    //cout << "DiffbotSystem::write: enter" << endl;
+
+    assert(ser_fd_ != -1);
 
     auto l_rps = get_command("left_wheel_joint/velocity");
     auto r_rps = get_command("right_wheel_joint/velocity");
 
-    left_motor_->speed_rps(l_rps, 0, left_rad_, left_rps_);
-    right_motor_->speed_rps(r_rps, 0, right_rad_, right_rps_);
+    // convert radians/second to steps/second
+    const int32_t steps_per_rev = 200 * 16;
+    const double steps_per_rad = steps_per_rev / (2 * M_PI);
+    int32_t l_sps = round(l_rps * steps_per_rad);
+    int32_t r_sps = round(r_rps * steps_per_rad);
+
+    char buf[80];
+
+    sprintf(buf, "s %d %d", l_sps, r_sps);
+
+    //cout << "DiffbotSystem::write: sending \"" << buf << "\"" << endl;
+    ::write(ser_fd_, buf, strlen(buf) + 1);
+
+    // get current step counts
+
+    size_t idx = 0;
+    while (idx < sizeof(buf)) {
+        char c;
+        ::read(ser_fd_, &c, 1);
+        //printf(" %02x\n", (int)c);
+        // messages normally end in \r\n; ignore the \r and end it on the \n
+        if (c == '\r')
+            continue;
+        if (c == '\n')
+            c = '\0';
+        buf[idx++] = c;
+        if (c == '\0')
+            break;
+    }
+
+    //cout << "DiffbotSystem::write: received \"" << buf << "\"" << endl;
+
+    int32_t l_step, r_step;
+    if (sscanf(buf, "g %d %d", &l_step, &r_step) == 2) {
+        // convert steps to radians
+        left_rad_ = l_step / steps_per_rad;
+        right_rad_ = r_step / steps_per_rad;
+    }
 
 #if 0
     if (l_rps != 0.0 || r_rps != 0.0 || left_rps_ != 0.0 || right_rps_ != 0.0) {
@@ -195,6 +209,8 @@ return_type DiffbotSystem::write(const Time&, const Duration&)
                              l_rps, r_rps, left_rps_, right_rps_);
     }
 #endif
+
+    //cout << "DiffbotSystem::write: return OK" << endl;
 
     return return_type::OK;
 }

@@ -15,8 +15,8 @@ diffbot_base_controller:
     right_wheel_names: ["right_wheel_joint"]
 
     # Measured
-    wheel_separation: 0.154
-    wheel_radius: 0.033
+    wheel_separation: 0.137
+    wheel_radius: 0.050
 
     # Default for this is 50. Perhaps 10 is too low, especially since
     # velocity_rolling_window_size defaults to 10. Must be double!
@@ -36,11 +36,11 @@ diffbot_base_controller:
     cmd_vel_timeout: 0.5
 
     linear.x:
-      max_velocity: 0.5     # full-speed for the motors and wheels
-      max_acceleration: 0.5 # to full speed in about a second
+      max_velocity: 0.5         # m/sec
+      max_acceleration: 0.5     # m/sec^2
       max_jerk: .NAN
 
     angular.z:
-      max_velocity: 6.2832
-      max_acceleration: 3.1416
+      max_velocity: 3.1416      # rad/sec
+      max_acceleration: 3.1416  # rad/sec^2
       max_jerk: .NAN

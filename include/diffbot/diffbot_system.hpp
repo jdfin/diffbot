@@ -3,7 +3,6 @@
 
 #include "hardware_interface/system_interface.hpp"
 
-class MotorCtrl;
 
 namespace diffbot
 {
@@ -37,25 +36,8 @@ class DiffbotSystem : public hardware_interface::SystemInterface
 
     private:
 
-        std::string gpio_dev_name_;
-        std::string pwm_chip_name_;
-
-        int left_dir_pin_;
-        int left_pwm_num_;
-        bool left_pwm_rev_;
-        int left_enc_a_pin_;
-        int left_enc_b_pin_;
-        int left_enc_cpr_;
-
-        int right_dir_pin_;
-        int right_pwm_num_;
-        bool right_pwm_rev_;
-        int right_enc_a_pin_;
-        int right_enc_b_pin_;
-        int right_enc_cpr_;
-
-        MotorCtrl *left_motor_;
-        MotorCtrl *right_motor_;
+        std::string ser_dev_name_;
+        int ser_fd_;
 
         // actual position (radians) and velocity (radians/second)
         double left_rad_;
